@@ -1,0 +1,54 @@
+# --- Node.js & Frontend ---
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Ignore all .env files
+.env
+*.env
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Ignore the dist directory (frontend build output)
+dist/
+
+# Ignore the build directory (frontend build output)
+build/
+
+# Ignore specific file
+config.json
+
+# --- IDE-specific files ---
+# VS Code
+.vscode/
+
+# JetBrains IDEs
+.idea/
+
+# --- Backend ---
+# environment files for backend
+.env
+
+# Ignore the database or backup directory if used
+/database-backups/
+
+# Ignore sensitive keys or credentials
+secrets.json
