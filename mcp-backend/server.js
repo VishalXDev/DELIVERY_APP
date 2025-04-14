@@ -1,5 +1,3 @@
-// server.js
-
 const express = require("express");
 const http = require("http");
 const cors = require("cors");
@@ -11,7 +9,7 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server, { cors: { origin: "*" } });
 
-// Make io available in controllers
+// Make io available in controllers (optional, depending on usage)
 app.set("io", io);
 
 // Middleware
@@ -31,18 +29,26 @@ app.use("/api/transactions", transactionRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/location", locationRoutes);
 
-// WebSocket Events
+// WebSocket Events (Single io connection handler)
 io.on("connection", (socket) => {
   console.log("🟢 New client connected:", socket.id);
+
+  // Handle location update from partners
+  socket.on("locationUpdate", ({ partnerId, lat, lng }) => {
+    console.log("Location update from:", partnerId, lat, lng);
+
+    // Broadcast the location to all MCP admins or a specific room
+    io.emit("partnerLocation", { partnerId, lat, lng });
+  });
 
   socket.on("disconnect", () => {
     console.log("🔴 Client disconnected:", socket.id);
   });
 });
 
-// MongoDB + Start Server
+// MongoDB + Start Server (without deprecated options)
 mongoose
-  .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(process.env.MONGO_URI)  // Removed the deprecated options
   .then(() => {
     console.log("✅ MongoDB connected");
     server.listen(process.env.PORT || 5000, () => {
@@ -52,19 +58,3 @@ mongoose
   .catch((err) => {
     console.error("❌ MongoDB connection error:", err);
   });
-  io.on("connection", (socket) => {
-    console.log("Client connected:", socket.id);
-  
-    // Receive location updates from partner
-    socket.on("locationUpdate", ({ partnerId, lat, lng }) => {
-      console.log("Location update from:", partnerId, lat, lng);
-  
-      // Broadcast to all MCP admins (or specific room)
-      io.emit("partnerLocation", { partnerId, lat, lng });
-    });
-  
-    socket.on("disconnect", () => {
-      console.log("Client disconnected:", socket.id);
-    });
-  });
-  
