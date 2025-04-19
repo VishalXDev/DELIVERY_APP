@@ -2,12 +2,11 @@ import { ReactNode, useEffect, useState } from "react";
 import {
   getToken,
   onMessage,
-  MessagePayload,
-  Messaging,
 } from "firebase/messaging";
+import type { Messaging, MessagePayload } from "firebase/messaging";
 import { toast } from "react-toastify";
 import { NotificationContext } from "./NotificationContext";
-import getFirebaseMessaging from "./firebase"; // ✅ default import
+import getFirebaseMessaging from "./firebase"; // Default import
 
 interface Props {
   children: ReactNode;
