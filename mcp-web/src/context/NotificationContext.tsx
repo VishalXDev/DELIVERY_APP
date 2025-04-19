@@ -3,7 +3,7 @@ import { MessagePayload } from "firebase/messaging";
 
 export interface NotificationContextType {
   token: string | null;
-  requestPermissionAndToken: () => Promise<string | null>;
+  requestPermissionAndToken: () => Promise<void>;
   onFirebaseMessage: (callback: (payload: MessagePayload) => void) => void;
 }
 

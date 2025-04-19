@@ -7,23 +7,23 @@ import Reports from "./pages/Reports";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const routes = [
-  { path: "/", component: <Dashboard /> },
-  { path: "/partners", component: <Partners /> },
-  { path: "/orders", component: <Orders /> },
-  { path: "/wallet", component: <Wallet /> },
-  { path: "/reports", component: <Reports /> },
+const appRoutes = [
+  { path: "/", element: <Dashboard /> },
+  { path: "/partners", element: <Partners /> },
+  { path: "/orders", element: <Orders /> },
+  { path: "/wallet", element: <Wallet /> },
+  { path: "/reports", element: <Reports /> },
 ];
 
 function App() {
   return (
     <Router>
       <Routes>
-        {routes.map(({ path, component }, index) => (
-          <Route key={index} path={path} element={component} />
+        {appRoutes.map(({ path, element }, index) => (
+          <Route key={index} path={path} element={element} />
         ))}
-        <ToastContainer position="top-right" />
       </Routes>
+      <ToastContainer position="top-right" />
     </Router>
   );
 }
