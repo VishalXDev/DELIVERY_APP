@@ -16,10 +16,10 @@ export default function OrderCard({ order, partners, onUpdate }: Props) {
   };
 
   return (
-    <div className="bg-white p-4 rounded-xl shadow-md space-y-2">
-      <div className="flex justify-between items-center">
-        <div>
-          <h3 className="font-semibold text-lg">Order #{order._id.slice(-6)}</h3>
+    <div className="bg-white p-4 rounded-xl shadow space-y-2">
+      <div className="flex justify-between items-start gap-4">
+        <div className="space-y-1">
+          <h3 className="text-lg font-semibold">Order #{order._id?.slice(-6)}</h3>
           <p className="text-sm text-gray-600">Amount: ₹{order.amount}</p>
           <p className="text-sm">
             Status:
@@ -37,11 +37,11 @@ export default function OrderCard({ order, partners, onUpdate }: Props) {
           </p>
         </div>
 
-        <div className="text-right">
+        <div className="flex flex-col gap-2 text-sm">
           <select
             value={order.assignedTo}
             onChange={handleAssign}
-            className="border px-2 py-1 rounded text-sm"
+            className="border rounded px-2 py-1"
           >
             <option value="">Assign Partner</option>
             {partners.map((p) => (
@@ -54,7 +54,7 @@ export default function OrderCard({ order, partners, onUpdate }: Props) {
           <select
             value={order.status}
             onChange={handleStatus}
-            className="border mt-2 px-2 py-1 rounded text-sm"
+            className="border rounded px-2 py-1"
           >
             <option value="pending">Pending</option>
             <option value="completed">Completed</option>

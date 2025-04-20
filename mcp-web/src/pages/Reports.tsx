@@ -3,22 +3,71 @@ import Layout from "../components/Layout";
 import { fetchAnalytics } from "../services/api";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
 
+interface OrderStats {
+  date: string;
+  count: number;
+}
+
+interface PartnerStats {
+  name: string;
+  completedOrders: number;
+}
+
+interface StatusStats {
+  status: string;
+  count: number;
+}
+
 export default function Reports() {
-  const [orderStats, setOrderStats] = useState([]);
-  const [partnerStats, setPartnerStats] = useState([]);
-  const [statusStats, setStatusStats] = useState([]);
+  const [orderStats, setOrderStats] = useState<OrderStats[]>([]);
+  const [partnerStats, setPartnerStats] = useState<PartnerStats[]>([]);
+  const [statusStats, setStatusStats] = useState<StatusStats[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   const COLORS = ["#4ade80", "#60a5fa", "#f87171"];
 
   useEffect(() => {
     const load = async () => {
-      const data = await fetchAnalytics();
-      setOrderStats(data.orderTrend);
-      setPartnerStats(data.partnerPerformance);
-      setStatusStats(data.statusDistribution);
+      setLoading(true);
+      try {
+        const data = await fetchAnalytics();
+        setOrderStats(data.orderTrend);
+        setPartnerStats(
+          data.partnerPerformance.map((partner: { partnerId: string; performanceMetric: number }) => ({
+            name: partner.partnerId,
+            completedOrders: partner.performanceMetric,
+          }))
+        );
+        setStatusStats(data.statusDistribution);
+      } catch (err) {
+        setError("Failed to load analytics data. Please try again.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
     };
     load();
   }, []);
+
+  if (loading) {
+    return (
+      <Layout>
+        <h1 className="text-2xl font-bold mb-4">Reports & Analytics</h1>
+        <p>Loading analytics data...</p>
+        {/* Optionally include a loading spinner */}
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout>
+        <h1 className="text-2xl font-bold mb-4">Reports & Analytics</h1>
+        <p className="text-red-500">{error}</p>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>

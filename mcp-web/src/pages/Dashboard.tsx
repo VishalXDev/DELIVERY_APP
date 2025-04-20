@@ -8,18 +8,33 @@ export default function Dashboard() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [walletBalance, setWalletBalance] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null); // Error state
 
   useEffect(() => {
     const loadData = async () => {
-      const [orderData, userData, walletData] = await Promise.all([
-        fetchOrders(),
-        fetchUsers(),
-        fetchAdminWallet()
-      ]);
+      try {
+        // Ensure the data fetched conforms to the expected types
+        const [orderData, userData, walletData] = await Promise.all([
+          fetchOrders(),
+          fetchUsers(),
+          fetchAdminWallet()
+        ]);
 
-      setOrders(orderData);
-      setUsers(userData);
-      setWalletBalance(walletData.balance);
+        // Check if the fetched data matches expected shape before setting state
+        if (Array.isArray(orderData) && Array.isArray(userData)) {
+          setOrders(orderData); // Data matches the expected Order[] type
+          setUsers(userData); // Data matches the expected User[] type
+        } else {
+          throw new Error("Invalid data structure received");
+        }
+
+        setWalletBalance(walletData.balance);
+      } catch (error) {
+        setError("Failed to load data. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     loadData();
@@ -28,6 +43,22 @@ export default function Dashboard() {
   const totalOrders = orders.length;
   const completedOrders = orders.filter(o => o.status === "completed").length;
   const pickupPartners = users.filter(u => u.role === "partner").length;
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <h1 className="text-2xl font-bold mb-4">Loading...</h1>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout>
+        <h1 className="text-2xl font-bold mb-4">{error}</h1> {/* Displaying error */}
+      </Layout>
+    );
+  }
 
   return (
     <Layout>

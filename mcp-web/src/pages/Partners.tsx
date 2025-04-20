@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Layout from "../components/Layout";
 import PartnerCard from "../components/PartnerCard";
 import PartnerModal from "../components/PartnerModal";
@@ -17,31 +17,51 @@ export default function Partners() {
   const [partners, setPartners] = useState<User[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const loadPartners = async () => {
-    const data = await fetchPartners();
-    setPartners(data);
-  };
+  const loadPartners = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchPartners();
+      setPartners(data);
+    } catch (err) {
+      console.error("Error fetching partners:", err);
+      setError("Failed to load partners. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     loadPartners();
-  }, []);
+  }, [loadPartners]);
 
   // Change form type to `PartnerForm`
   const handleAddEdit = async (form: PartnerForm) => {
-    if (editing) {
-      await updatePartner(editing._id, form);
-    } else {
-      await addPartner(form);
+    try {
+      if (editing) {
+        await updatePartner(editing._id, form);
+      } else {
+        await addPartner(form);
+      }
+      setShowModal(false);
+      setEditing(null);
+      loadPartners();
+    } catch (err) {
+      console.error("Error saving partner:", err);
+      setError("Failed to save partner. Please try again.");
     }
-    setShowModal(false);
-    setEditing(null);
-    loadPartners();
   };
 
   const handleDelete = async (id: string) => {
-    await deletePartner(id);
-    loadPartners();
+    try {
+      await deletePartner(id);
+      loadPartners();
+    } catch (err) {
+      console.error("Error deleting partner:", err);
+      setError("Failed to delete partner. Please try again.");
+    }
   };
 
   return (
@@ -55,6 +75,18 @@ export default function Partners() {
           + Add Partner
         </button>
       </div>
+
+      {isLoading && (
+        <div className="text-center my-4">
+          <p>Loading partners...</p>
+        </div>
+      )}
+
+      {error && (
+        <div className="text-center my-4 text-red-500">
+          <p>{error}</p>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {partners.map((partner) => (
